@@ -1,0 +1,81 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.venv-complex-backup/
+venv/
+env/
+
+# Do not push directory (for development files)
+do_not_push/
+
+# Data and model directories
+data/
+models/
+documents/
+downloads/
+*.db
+*.sqlite
+*.sqlite3
+
+# ChromaDB and vector databases
+chromadb/
+**/chromadb/
+*.chroma
+
+# Downloaded models (GGUF files can be large)
+*.gguf
+*.bin
+*.safetensors
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS specific files
+Thumbs.db
+.DS_Store
+*.log
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Environment variables and secrets
+.env
+.env.local
+.env.production
+.env.staging
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Cache directories
+.cache/
+**/cache/
+.pytest_cache/
+
+# Coverage and testing
+.coverage
+htmlcov/
+.tox/
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+
+# Documentation builds
+docs/_build/
+site/
