@@ -87,14 +87,14 @@ Examples:
     
     parser.add_argument(
         "--create-samples",
-        action="store_true",
+        action="store_true", 
         help="NEW: Create sample documents for testing"
     )
     
     parser.add_argument(
         "--quiet",
         action="store_true",
-        help="Minimize output (useful for testing)"
+        help="Minimize output (useful for testing or many chunks)"
     )
     
     args = parser.parse_args()
@@ -284,57 +284,115 @@ def demo_document_processing(chatbot: ChatbotCore):
         console.print("[yellow]📝 No sample documents found. Creating samples...[/yellow]")
         create_sample_documents()
     
-    # Process sample documents
+    # Process sample documents with simple, fast output
     processed_count = 0
+    total_chunks = 0
+    
+    console.print("[yellow]Processing documents...[/yellow]")
+    
     for file_path in sample_dir.glob("*"):
         if file_path.suffix.lower() in chatbot.supported_formats:
             try:
-                chunks = chatbot.process_document(str(file_path))
+                # Process document quietly (without verbose console output)
+                chunks = process_document_quietly(chatbot, str(file_path))
                 processed_count += 1
+                total_chunks += len(chunks)
                 
-                # Show chunk details
-                console.print(f"   📄 Created {len(chunks)} chunks from {file_path.name}")
-                if chunks:
-                    first_chunk = chunks[0]
-                    preview = first_chunk.text[:100] + "..." if len(first_chunk.text) > 100 else first_chunk.text
-                    console.print(f"   📝 Preview: [italic]{preview}[/italic]")
+                # Show concise progress immediately
+                console.print(f"✅ [cyan]{file_path.name}[/cyan]: {len(chunks)} chunks, {sum(len(c.text) for c in chunks):,} chars")
+                
+                # Show preview only for first document or if very few chunks
+                if processed_count == 1 or len(chunks) <= 3:
+                    if chunks:
+                        first_chunk = chunks[0]
+                        preview = first_chunk.text[:100] + "..." if len(first_chunk.text) > 100 else first_chunk.text
+                        console.print(f"   📝 Preview: [italic dim]{preview}[/italic dim]")
                 
             except Exception as e:
-                console.print(f"   ❌ [red]Error processing {file_path.name}: {e}[/red]")
+                console.print(f"❌ [red]Error processing {file_path.name}: {e}[/red]")
     
     if processed_count > 0:
-        # Show document summary
-        console.print("\n[bold green]📊 Processing Summary:[/bold green]")
+        # Show efficient summary
+        console.print(f"\n[bold green]📊 Processing Complete![/bold green]")
         summary = chatbot.get_document_summary()
         
-        summary_table = Table(show_header=True, header_style="bold magenta")
-        summary_table.add_column("Metric", style="cyan")
-        summary_table.add_column("Value", style="green")
+        # Compact summary table
+        summary_table = Table(show_header=True, header_style="bold magenta", show_lines=True)
+        summary_table.add_column("Metric", style="cyan", width=18)
+        summary_table.add_column("Value", style="green", justify="right", width=12)
         
-        summary_table.add_row("Total Documents", str(summary["total_documents"]))
+        summary_table.add_row("Documents", str(summary["total_documents"]))
         summary_table.add_row("Total Chunks", str(summary["total_chunks"]))
         summary_table.add_row("Total Characters", f"{summary['total_characters']:,}")
         
+        # Calculate average chunk size
+        avg_chunk_size = summary['total_characters'] // summary['total_chunks'] if summary['total_chunks'] > 0 else 0
+        summary_table.add_row("Avg Chunk Size", f"{avg_chunk_size:,} chars")
+        
         console.print(summary_table)
         
-        # Show per-document details
+        # Show per-document details in a more compact format
         if summary["documents"]:
-            console.print("\n[bold]Document Details:[/bold]")
-            doc_table = Table(show_header=True, header_style="bold blue")
-            doc_table.add_column("Document", style="cyan")
-            doc_table.add_column("Chunks", style="yellow")
-            doc_table.add_column("Characters", style="green")
+            console.print("\n[bold]Document Breakdown:[/bold]")
+            doc_table = Table(show_header=True, header_style="bold blue", show_lines=False)
+            doc_table.add_column("Document", style="cyan", width=20)
+            doc_table.add_column("Chunks", style="yellow", justify="right", width=8)
+            doc_table.add_column("Characters", style="green", justify="right", width=12)
+            doc_table.add_column("Avg Size", style="dim", justify="right", width=10)
             
             for doc_name, details in summary["documents"].items():
+                avg_size = details['characters'] // details['chunks'] if details['chunks'] > 0 else 0
                 doc_table.add_row(
                     doc_name,
                     str(details["chunks"]),
-                    f"{details['characters']:,}"
+                    f"{details['characters']:,}",
+                    f"{avg_size:,}"
                 )
             
             console.print(doc_table)
+            
+        # Show tip for larger files
+        if total_chunks > 10:
+            console.print(f"\n[dim]💡 Tip: With {total_chunks} chunks total, this demonstrates how the system handles larger documents efficiently![/dim]")
     else:
         console.print("[yellow]⚠️ No documents were processed. Try creating samples first.[/yellow]")
+
+
+def process_document_quietly(chatbot: ChatbotCore, file_path: str):
+    """Process a document without verbose console output - fast and simple."""
+    file_path = Path(file_path)
+    
+    # Quick validation
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    if file_path.suffix.lower() not in chatbot.supported_formats:
+        raise ValueError(f"Unsupported file format: {file_path.suffix}")
+    
+    # Extract text based on file type (simplified, no console output)
+    try:
+        if file_path.suffix.lower() == '.pdf':
+            text = chatbot._extract_pdf_text(file_path)
+        elif file_path.suffix.lower() == '.docx':
+            text = chatbot._extract_docx_text(file_path)
+        elif file_path.suffix.lower() in ['.md', '.markdown']:
+            text = chatbot._extract_markdown_text(file_path)
+        elif file_path.suffix.lower() == '.txt':
+            text = chatbot._extract_txt_text(file_path)
+        else:
+            raise ValueError(f"Unsupported format: {file_path.suffix}")
+        
+        # Create chunks from extracted text (this should be fast)
+        chunks = chatbot._create_text_chunks(text, str(file_path))
+        
+        # Store processed document
+        chatbot.processed_documents[file_path.name] = chunks
+        
+        return chunks
+        
+    except Exception as e:
+        # Don't let any single document crash the whole process
+        raise RuntimeError(f"Failed to process {file_path.name}: {e}")
 
 
 def create_sample_documents():
