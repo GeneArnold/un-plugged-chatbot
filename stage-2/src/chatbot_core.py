@@ -124,7 +124,7 @@ class ChatbotCore:
             
             # Stage 2 NEW: Document processing configuration
             "documents": {
-                "chunk_size": 1000,        # Characters per chunk
+                "chunk_size": 500,        # Characters per chunk
                 "chunk_overlap": 200,      # Character overlap between chunks
                 "min_chunk_size": 100,     # Minimum chunk size
                 "supported_formats": ['.pdf', '.txt', '.md', '.markdown', '.docx']
@@ -345,8 +345,8 @@ class ChatbotCore:
     def _create_text_chunks(self, text: str, source_file: str) -> List[DocumentChunk]:
         """
         Split text into overlapping chunks.
-        
         This implements smart chunking strategy that will be crucial for RAG in later stages.
+        FIX: Prevent infinite loop by ensuring start always advances.
         """
         doc_config = self.config["documents"]
         chunk_size = doc_config["chunk_size"]
@@ -379,12 +379,11 @@ class ChatbotCore:
                 ))
                 chunk_index += 1
             
-            # Move start position (with overlap)
-            start = end - overlap
-            
-            # Prevent infinite loop
-            if start >= end:
+            # FIX: Prevent infinite loop by ensuring we always advance
+            next_start = end - overlap
+            if next_start <= start:
                 break
+            start = next_start
         
         return chunks
     
