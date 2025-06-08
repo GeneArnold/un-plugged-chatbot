@@ -1,0 +1,38 @@
+[project]
+name = "offline-chatbot-stage2"
+version = "0.2.0"
+description = "Stage 2: Document Processing - Building an Offline LLM Chatbot"
+authors = [{name = "Your Name", email = "your.email@example.com"}]
+readme = "README.md"
+requires-python = ">=3.11"
+
+# Stage 2 Dependencies: Adding document processing capabilities
+dependencies = [
+    # Stage 1 dependencies (foundation)
+    "colorama>=0.4.6",      # For colored terminal output
+    "rich>=13.0.0",         # For beautiful console output and progress bars
+    
+    # Stage 2 NEW: Document processing dependencies
+    "pypdf>=3.17.0",        # PDF text extraction
+    "python-docx>=1.1.0",   # Microsoft Word document processing
+    "markdown>=3.5.0",      # Markdown file processing
+]
+
+# Development dependencies for testing and code quality
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+# Note: Dependency progression across stages:
+# Stage 1: rich, colorama (8 total packages)
+# Stage 2: +pypdf, python-docx, markdown (~15 total packages) ← WE ARE HERE
+# Stage 3: +sentence-transformers (embeddings) (~45 packages)  
+# Stage 4: +chromadb (vector database) (~65 packages)
+# Stage 5: +llama-cpp-python (local LLM) (~80 packages)
+# Stage 7: +streamlit (web interface) 
