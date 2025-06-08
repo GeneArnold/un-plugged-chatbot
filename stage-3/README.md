@@ -1,175 +1,124 @@
-# Stage 2: Document Processing
+# Stage 3: Embeddings
 
 **Building an Offline LLM Chatbot - Educational Series**
 
-Welcome to Stage 2! This stage builds on our Stage 1 foundation by adding comprehensive document processing capabilities. We'll learn how to extract text from various file formats and prepare them for AI processing.
+Welcome to Stage 3! This stage builds on our document processing foundation by adding semantic understanding through vector embeddings. You'll learn how to convert text chunks into numerical vectors using state-of-the-art models, setting the stage for similarity search and retrieval in future stages.
 
 ## 🎯 Learning Objectives
 
-By completing Stage 2, you will:
+By completing Stage 3, you will:
 
-- ✅ Extract text from PDF, TXT, Markdown, and DOCX files
-- ✅ Implement intelligent text chunking with overlap strategies
-- ✅ Build file processing pipelines for batch operations
-- ✅ Understand document metadata and processing workflows
-- ✅ Create sample documents for testing and experimentation
-- ✅ Extend existing architecture cleanly (building on Stage 1)
+- ✅ Understand what embeddings are and why they're essential for RAG
+- ✅ Use HuggingFace sentence-transformers to generate embeddings
+- ✅ Integrate embeddings into your document processing pipeline
+- ✅ Test and verify embedding generation
+- ✅ Extend the architecture cleanly (building on Stage 2)
 
 ## 🏗️ What We're Building
 
-Stage 2 extends our `ChatbotCore` class with document processing:
+Stage 3 introduces an `EmbeddingModel` class and supporting scripts:
 
-1. **Multi-Format Text Extraction** - PDF, TXT, Markdown, DOCX support
-2. **Smart Text Chunking** - Configurable chunk size with overlap
-3. **Batch Processing** - Handle multiple documents efficiently
-4. **Sample Document Generator** - Create test files for experimentation
-5. **Enhanced Testing** - Document-specific test coverage
-6. **Beautiful Progress Reporting** - Rich console output for processing status
+1. **Text Embedding** - Convert document chunks into 384-dimensional vectors
+2. **Model Integration** - Use all-MiniLM-L6-v2 via sentence-transformers
+3. **Testing** - Verify embeddings with a dedicated script
+4. **Educational Documentation** - Clear, incremental learning journey
 
 ## 📋 Prerequisites
 
-- **Stage 1 completed** - This builds directly on Stage 1's foundation
+- **Stage 2 completed** - This builds directly on Stage 2's foundation
 - Python 3.11 or higher
-- Basic understanding of file processing concepts
+- Basic understanding of document chunking
 
 ## 🚀 Quick Start
 
 ### 1. Set Up Your Environment
 
 ```bash
-# Create and activate virtual environment
+# Create and activate virtual environment (if not already done)
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# Install dependencies (includes new document processing libraries)
+# Install dependencies (includes new embedding libraries)
 pip install -e .
 ```
 
-### 2. Test Document Processing
+### 2. Test Embedding Generation
 
 ```bash
-# Create sample documents for testing
-python main.py --create-samples
-
-# See document processing in action
-python main.py --demo-docs
-
-# Run all system tests (includes new document tests)
-python main.py --test
-
-# Check enhanced system status
-python main.py --status
+# Run the embedding test script
+python src/test_embedding.py
 ```
 
 ### 3. Expected Output
 
-When you run `python main.py --demo-docs`:
+When you run `python src/test_embedding.py`:
 
 ```
-🔧 Document Processing Demo
-
-Processing document: technical_guide.md
-✅ Processed technical_guide.md: 1 chunks, 905 characters
-   📄 Created 1 chunks from technical_guide.md
-   📝 Preview: # Technical Setup Guide...
-
-Processing document: company_policy.txt
-✅ Processed company_policy.txt: 1 chunks, 812 characters
-   📄 Created 1 chunks from company_policy.txt
-   📝 Preview: Company Employee Handbook...
-
-📊 Processing Summary:
-┏━━━━━━━━━━━━━━━━━━┳━━━━━━━┓
-┃ Metric           ┃ Value ┃
-┡━━━━━━━━━━━━━━━━━━╇━━━━━━━┩
-│ Total Documents  │ 3     │
-│ Total Chunks     │ 3     │
-│ Total Characters │ 2,487 │
-└──────────────────┴───────┘
+Model loaded.
+Embeddings shape: (3, 384)
+First embedding (truncated): [ ... ] ...
 ```
 
 ## 📁 Project Structure
 
 ```
-stage-2/
+stage-3/
 ├── src/
-│   ├── __init__.py          # Package initialization
-│   └── chatbot_core.py      # Extended ChatbotCore class
-├── sample_documents/        # NEW: Generated test documents
-│   ├── company_policy.txt
-│   ├── technical_guide.md
-│   └── meeting_notes.txt
-├── main.py                  # Enhanced demo script with new commands
-├── pyproject.toml          # Updated dependencies
-└── README.md               # This file
+│   ├── embedding_model.py      # Embedding logic
+│   ├── test_embedding.py       # Test script
+│   └── ...
+├── sample_documents/          # Example documents (from Stage 2)
+├── main.py                    # CLI interface
+├── README.md                  # This file
+└── ...
 ```
 
 ## 🔍 Key Components Explained
 
-### Enhanced ChatbotCore Class
+### EmbeddingModel Class
 
-All Stage 1 functionality remains unchanged, plus new document processing methods:
+All Stage 2 functionality remains unchanged, plus new embedding methods:
 
 ```python
-# All Stage 1 capabilities still work
+# All Stage 2 capabilities still work
 chatbot = ChatbotCore()
-chatbot.initialize()
-print(chatbot.get_capabilities())
-# Output: ['basic_setup', 'configuration', 'logging', 'document_processing', 'text_chunking']
-
-# NEW Stage 2 capabilities
 chunks = chatbot.process_document("manual.pdf")
-formats = chatbot.get_supported_formats()
-chatbot.create_sample_documents()
+
+# NEW Stage 3 capabilities
+from embedding_model import EmbeddingModel
+model = EmbeddingModel()
+embeddings = model.embed_chunks(chunks)
 ```
 
-### Document Processing Pipeline
+### Embedding Generation Pipeline
 
 ```python
-def process_document(self, file_path: str) -> List[str]:
+def embed_chunks(self, chunks: List[str]) -> np.ndarray:
     """
-    Extract text from a document and split into chunks.
-    
-    Supports: .pdf, .txt, .md, .markdown, .docx
-    Returns: List of text chunks with smart overlap
-    """
-```
-
-### Text Chunking Strategy
-
-```python
-def _chunk_text(self, text: str) -> List[str]:
-    """
-    Split text into overlapping chunks.
-    
-    Default: 1000 characters per chunk, 200 character overlap
-    Overlap preserves context across chunk boundaries
+    Convert a list of text chunks into embeddings using all-MiniLM-L6-v2.
+    Returns: 2D numpy array (num_chunks x 384)
     """
 ```
 
 ## 🧪 Enhanced Testing
 
-Stage 2 adds comprehensive document processing tests:
+Stage 3 adds comprehensive embedding tests:
 
 ```bash
-python main.py --test
+python src/test_embedding.py
 
 # Tests now include:
-# ✅ All Stage 1 tests (unchanged)
-# ✅ Document format support verification
-# ✅ Text extraction accuracy
-# ✅ Chunking logic validation
-# ✅ Sample document generation
-# ✅ Error handling for invalid files
+# ✅ Model loads without error
+# ✅ Embeddings generated for sample chunks
+# ✅ Handles invalid input gracefully
 ```
 
 ## 🛠️ New Dependencies
 
-Stage 2 adds document processing libraries:
+Stage 3 adds embedding libraries:
 
-- **PyPDF** - PDF text extraction
-- **python-docx** - Microsoft Word document support
-- **markdown** - Markdown processing (for future enhancements)
+- **sentence-transformers** - Easy access to HuggingFace models
+- **torch** - Backend for model computation
 
 ```bash
 # Install automatically with:
@@ -179,166 +128,100 @@ pip install -e .
 ## 💡 Key Learning Points
 
 ### 1. Extending vs. Replacing
-Notice how we **extended** Stage 1 rather than replacing it:
-- All Stage 1 functionality works exactly as before
-- New features are added as additional methods
+Notice how we **extended** Stage 2 rather than replacing it:
+- All Stage 2 functionality works exactly as before
+- New features are added as additional modules
 - Configuration grows without breaking existing settings
 
-### 2. File Format Strategies
-Different formats require different extraction approaches:
-- **TXT/MD**: Simple file reading
-- **PDF**: PyPDF library for page-by-page extraction
-- **DOCX**: python-docx for structured paragraph extraction
+### 2. What Are Embeddings?
+Embeddings are numerical representations of text that capture semantic meaning, enabling similarity search and retrieval in RAG systems.
 
-### 3. Chunking for AI Systems
-Why we chunk text:
-- **LLM Context Limits**: Models have maximum input lengths
-- **Semantic Coherence**: Smaller chunks = more focused retrieval
-- **Processing Efficiency**: Faster embedding and search operations
+### 3. Model Choice
+- **all-MiniLM-L6-v2**: Lightweight, fast, and effective for sentence/paragraph embeddings
+- **sentence-transformers**: Easy-to-use wrapper for HuggingFace models
+- **torch**: Backend for model computation
 
-### 4. Overlap Strategy
-Chunk overlap preserves context across boundaries:
-```
-Chunk 1: [----1000 chars----]
-Chunk 2:      [200 overlap][----800 new chars----]
-Chunk 3:                           [200 overlap][----800 new chars----]
-```
+### 4. How Embeddings Fit the Pipeline
+- Chunks from Stage 2 are passed to the embedding model
+- Embeddings are generated and can be stored or searched in later stages
 
-## 🔮 What's Next: Stage 3 Preview
+## 🔮 What's Next: Stage 4 Preview
 
-Stage 3 will add **semantic understanding** to our processed text chunks:
+Stage 4 will add **vector storage and similarity search** to your chatbot:
 
 ```python
-# Stage 3 will add embeddings
-similarity = chatbot.find_similar_chunks(
-    query="How do I install the software?",
-    chunks=processed_chunks
-)
+# Stage 4 will add vector database integration
+results = chatbot.find_similar_chunks(query="How do I install the software?", chunks=processed_chunks)
 ```
 
-Key concepts in Stage 3:
-- Vector embeddings and semantic similarity
-- Sentence transformer models
-- Cosine similarity calculations
-- Preparing for vector database storage
+Key concepts in Stage 4:
+- Vector databases and efficient search
+- Storing and retrieving embeddings
+- Integrating retrieval with the chatbot pipeline
 
 ## 🛠️ Troubleshooting
 
 ### Common Issues
 
-**"No module named 'pypdf'"**
+**"No module named 'sentence_transformers'"**
 ```bash
 # Reinstall dependencies
 pip install -e .
 ```
 
-**"Failed to process PDF"**
-- Some PDFs are image-based and need OCR (beyond this tutorial)
-- Try with text-based PDFs first
-
-**"Sample documents not created"**
-```bash
-# Check write permissions in current directory
-ls -la sample_documents/
-```
+**"Model fails to load"**
+- Check your internet connection (model downloads on first run)
+- Ensure correct Python version and dependencies
 
 ### Getting Help
 
-- Check `python main.py --test` output for detailed error information
-- Verify all Stage 1 functionality works first
-- Ensure you're in the `stage-2/` directory when running commands
+- Check `python src/test_embedding.py` output for detailed error information
+- Verify all Stage 2 functionality works first
+- Ensure you're in the `stage-3/` directory when running commands
 
 ## 🎓 Educational Notes
 
 ### Key Architectural Decisions
 
-1. **Incremental Enhancement**: We extended rather than replaced Stage 1
-2. **Flexible Configuration**: Document settings added to existing config system
+1. **Incremental Enhancement**: We extended rather than replaced Stage 2
+2. **Separation of Concerns**: Embedding logic is isolated in its own module
 3. **Comprehensive Testing**: Each new feature has corresponding tests
-4. **User Experience**: Beautiful progress reporting and error handling
+4. **User Experience**: Clear error messages and educational output
 
 ### Real-World Applications
 
-The document processing we're building forms the foundation for:
-- **Corporate Knowledge Bases**: Process company documents
-- **Technical Documentation Systems**: Handle manuals and guides
-- **Research Tools**: Analyze academic papers and reports
-- **Personal AI Assistants**: Process your own document collections
+The embedding system we're building forms the foundation for:
+- **Semantic Search Engines**: Find relevant information by meaning
+- **Knowledge Bases**: Power corporate or personal document search
+- **AI Assistants**: Enable context-aware responses
 
 ## 📚 Additional Resources
 
-- [PyPDF Documentation](https://pypdf.readthedocs.io/) - PDF processing
-- [python-docx Documentation](https://python-docx.readthedocs.io/) - Word document handling
-- [Text Chunking Strategies](https://chunkviz.up.railway.app/) - Visualization tool
+- [Sentence Transformers Documentation](https://www.sbert.net/)
+- [HuggingFace Model Hub](https://huggingface.co/models)
+- [Understanding Embeddings](https://jalammar.github.io/illustrated-word2vec/)
 
-## ✅ Stage 2 Checklist
+## ✅ Stage 3 Checklist
 
-Before moving to Stage 3, verify:
+Before moving to Stage 4, verify:
 
-- [ ] All Stage 1 functionality still works (`python main.py --status`)
-- [ ] Can create sample documents (`python main.py --create-samples`)
-- [ ] Document processing demo works (`python main.py --demo-docs`)
+- [ ] All Stage 2 functionality still works (`python main.py --status`)
+- [ ] Can process and chunk documents (`python main.py --demo-docs`)
+- [ ] Embedding test script works (`python src/test_embedding.py`)
 - [ ] All tests pass (`python main.py --test`)
-- [ ] Understand text chunking concepts
-- [ ] Can process your own documents by adding them to `sample_documents/`
+- [ ] Understand how embeddings are generated and used
+- [ ] Ready to store and search embeddings in Stage 4
 
 ## 🎯 Try It Yourself
 
-### Experiment with Different Chunk Sizes
+### Experiment with Your Own Text
 
-1. Look at the configuration in `src/chatbot_core.py`
-2. Modify `chunk_size` and `chunk_overlap` values
-3. Run `python main.py --demo-docs` to see the effects
-4. Understand how different settings affect chunking
+1. Modify `test_embedding.py` to use your own text chunks
+2. Run the script and observe the embeddings
+3. Try different sentences and see how the vectors change
 
-### Add Your Own Documents
-
-1. Copy PDF, TXT, or DOCX files to `sample_documents/`
-2. Run `python main.py --demo-docs`
-3. Observe how different document types are processed
-4. Note the chunk counts and character distributions
-
-**Ready for Stage 3?** The next stage will add semantic understanding to these processed text chunks using embeddings!
+**Ready for Stage 4?** The next stage will add vector storage and similarity search to your chatbot!
 
 ---
 
-*This is part of the "Building an Offline LLM Chatbot" educational series. Stage 2 builds directly on Stage 1's foundation, demonstrating how to grow complex systems incrementally.* 
-
-# Stage 3: Embeddings
-
-## Purpose
-This stage introduces embeddings, a core component of Retrieval-Augmented Generation (RAG) systems. Embeddings convert text chunks into numerical vectors, enabling efficient similarity search and retrieval.
-
-## Why Embeddings?
-Embeddings allow the chatbot to "understand" and compare the meaning of different text chunks, making it possible to retrieve relevant information for user queries.
-
-## Model Choice
-- **Model:** `all-MiniLM-L6-v2` (via HuggingFace)
-- **Library:** `sentence-transformers`
-- **Backend:** `torch`
-
-### Why this model?
-- Lightweight and fast
-- Good balance of performance and resource usage
-- Widely used in educational and production RAG systems
-
-## New Dependencies
-- `sentence-transformers`: For easy access to state-of-the-art embedding models.
-- `torch`: Backend for running the model.
-
-## How This Builds on Stage 2
-- Uses the in-memory chunks from Stage 2 as input.
-- Prepares for vector storage and retrieval in future stages.
-
----
-
-## Changelog / What's New in Stage 3
-- Introduced embedding model and vectorization logic.
-- Added new dependencies.
-- Updated documentation.
-
----
-
-## Next Steps
-- Implement embedding code.
-- Add CLI/testing features for embedding generation. 
+*This is part of the "Building an Offline LLM Chatbot" educational series. Stage 3 builds directly on Stage 2's foundation, demonstrating how to grow complex systems incrementally.* 
