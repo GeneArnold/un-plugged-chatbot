@@ -1,135 +1,55 @@
-# Building an Offline LLM Chatbot - Educational Series
+# Offline LLM Chatbot (Simple RAG Pipeline)
 
-**Learn to build a complete RAG (Retrieval-Augmented Generation) system incrementally**
+This project is a simple Retrieval-Augmented Generation (RAG) chatbot that can answer questions using your own documents. It supports both a local Llama model and OpenAI's GPT-3.5-turbo.
 
-This repository contains a comprehensive, stage-by-stage tutorial for building an offline LLM chatbot. Each stage builds upon the previous one, teaching core AI concepts while maintaining clean, professional code.
+## Features
+- **Document Ingestion:** Reads `.txt` and `.md` files from the `sample_docs/` directory.
+- **Chunking:** Splits documents into overlapping text chunks for better retrieval.
+- **Embeddings:** Uses `sentence-transformers` to embed chunks.
+- **Vector Search:** Stores and retrieves chunks using ChromaDB for relevant context.
+- **LLM Answering:**
+  - **Local:** Uses a Llama model (via `llama-cpp-python`).
+  - **Cloud:** Uses OpenAI's GPT-3.5-turbo (requires API key).
+- **User Feedback:** Shows a spinner and message while the model is generating an answer, so you know the app is working.
 
-## 🎯 What You'll Learn
+## Quick Start
 
-- **RAG Fundamentals**: Document processing, embeddings, vector search, and generation
-- **Local AI Systems**: Run LLMs completely offline for privacy and security
-- **Software Architecture**: Build complex AI systems with clean, maintainable code
-- **Incremental Development**: Add complexity gradually while maintaining stability
-- **Production Practices**: Testing, documentation, and deployment strategies
+1. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## 🏗️ Stage-Based Learning Approach
+2. **Add your documents:**
+   - Place `.txt` or `.md` files in the `sample_docs/` folder.
 
-Unlike tutorials that dump everything at once, we build incrementally:
+3. **Download a Llama model:**
+   - Place your GGUF model file (e.g., `llama-2-7b.Q4_0.gguf`) in the `models/` directory.
 
-### **Stage 1: Project Setup & Environment**
-- Professional Python project structure
-- Beautiful console output with Rich
-- Extensible architecture foundation
-- Testing and configuration patterns
+4. **(Optional) Set your OpenAI API key:**
+   ```bash
+   export OPENAI_API_KEY=your-key-here
+   ```
 
-### **Stage 2: Document Processing**
-- Extract text from PDF, TXT, Markdown, DOCX
-- Smart text chunking with overlap strategies
-- File processing pipeline and metadata
-- Sample document creation and testing
+5. **Run the chatbot:**
+   ```bash
+   python main.py
+   ```
 
-### **Stage 3: Understanding Embeddings**
-- Semantic similarity concepts
-- Sentence transformers
-- Vector mathematics basics
-- Similarity search implementation
+6. **Ask questions:**
+   - The script will show available files, chunk them, and let you ask a question.
+   - Choose which model to use (local Llama or OpenAI).
+   - A spinner will show while the model is thinking.
 
-### **Stage 4: Vector Database**
-- ChromaDB integration
-- Persistent vector storage
-- Search and filtering
-- Knowledge base management
+## Notes
+- The code is portable and does not use hardcoded paths.
+- The spinner works for all models and displays which model is running.
+- To suppress Hugging Face tokenizer warnings, the script sets `TOKENIZERS_PARALLELISM=false` automatically.
 
-### **Stage 5: Local LLM Integration**
-- GGUF model management
-- Local inference with llama.cpp
-- Prompt engineering
-- Performance optimization
+## Requirements
+- Python 3.11+
+- See `requirements.txt` for dependencies.
 
-### **Stage 6: Complete RAG Pipeline**
-- Orchestrate all components
-- Context retrieval + generation
-- Source citation
-- Quality control
+---
 
-### **Stage 7: Web Interface**
-- Streamlit application
-- Document upload
-- Chat interface
-- Knowledge base management
-
-### **Stage 8: CLI & Automation**
-- Command-line interface
-- Batch processing
-- Integration scripts
-- Workflow automation
-
-### **Stage 9: Production Deployment**
-- Docker containerization
-- Easy installation
-- Security considerations
-- Scaling strategies
-
-## 📚 Educational Philosophy
-
-### Why Stage-Based Learning?
-1. **Manageable Complexity**: Master one concept at a time
-2. **Working Code**: Every stage produces something functional
-3. **Clear Progression**: See how features build naturally
-4. **Better Debugging**: Isolate issues in simpler code
-5. **Flexible Learning**: Stop at any stage that meets your needs
-
-### Key Principles
-- **Incremental Development**: Add complexity gradually
-- **Clean Architecture**: Design for growth from day one
-- **Comprehensive Testing**: Verify everything works
-- **Beautiful UX**: Professional tools are easier to learn
-- **Clear Documentation**: Help others understand and contribute
-
-## 🎓 Learning Outcomes
-
-After completing this series, you'll be able to:
-- ✅ Build RAG systems from scratch
-- ✅ Deploy local AI applications securely
-- ✅ Understand vector databases and embeddings
-- ✅ Create professional Python AI projects
-- ✅ Troubleshoot and optimize AI systems
-- ✅ Extend the system for your specific needs
-
-## 📖 Blog Series
-This repository accompanies a comprehensive blog series. Each stage corresponds to a detailed blog post:
-
-1. **Introduction & Motivation** - Why offline AI matters
-2. **Stage 1: Project Setup** - Building solid foundations  
-3. **Stage 2: Document Processing** - From files to chunks
-4. **Stage 3: Understanding Embeddings** - Semantic similarity
-5. **Stage 4: Vector Databases** - Persistent search
-6. **Stage 5: Local LLMs** - AI without internet
-7. **Stage 6: RAG Pipeline** - Bringing it all together
-8. **Stage 7: Web Interface** - User-friendly AI
-9. **Stage 8: CLI & Automation** - Power user tools
-10. **Stage 9: Production** - Deploy with confidence
-
-## 🤝 Contributing
-
-We welcome contributions! Whether it's:
-- 🐛 Bug fixes
-- 📚 Documentation improvements
-- ✨ New features
-- 🧪 Additional tests
-- 💡 Educational content suggestions
-
-Please see each stage's README for specific contribution guidelines.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Hugging Face** for sentence-transformers
-- **ChromaDB** for vector database capabilities
-- **Rich** for beautiful console output
-- **Streamlit** for rapid web app development
-- **llama.cpp** for efficient local inference
+This is a minimal, educational example. For more advanced features, see the project blog or future updates!
 

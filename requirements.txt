@@ -1,3 +1,6 @@
 sentence-transformers
 torch 
 chromadb 
+llama-cpp-python 
+openai
+rich 

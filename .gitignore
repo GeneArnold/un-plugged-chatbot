@@ -28,6 +28,7 @@ downloads/
 chromadb/
 **/chromadb/
 *.chroma
+.chroma_database/
 
 # Downloaded models (GGUF files can be large)
 *.gguf
