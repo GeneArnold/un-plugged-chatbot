@@ -17,6 +17,8 @@ from rich.table import Table
 from llama_cpp import Llama
 from rich.panel import Panel
 from rich.spinner import Spinner
+from dotenv import load_dotenv
+load_dotenv()
 
 sample_docs_dir = os.path.join(os.path.dirname(__file__), "sample_docs")
 console = Console()
@@ -97,15 +99,25 @@ def ask_openai(context_chunks, user_query, model=LLM_MODEL, max_tokens=LLM_MAX_T
     )
     return response.choices[0].message.content.strip()
 
-# Dynamically construct the path to the Llama model file
-llama_model_path = os.path.join(os.path.dirname(__file__), "models", "llama-2-7b.Q4_0.gguf")
-llm = Llama(model_path=llama_model_path, n_ctx=2048)
-
-def ask_llama(context_chunks, user_query, max_tokens=LLM_MAX_TOKENS, temperature=LLM_TEMPERATURE, stop=LLM_STOP):
+def ask_llama(context_chunks, user_query, llm, max_tokens=LLM_MAX_TOKENS, temperature=LLM_TEMPERATURE, stop=LLM_STOP):
     context = "\n".join(context_chunks)
     prompt = f"Context:\n{context}\n\nQuestion: {user_query}\nAnswer:"
     output = llm(prompt, max_tokens=max_tokens, temperature=temperature, stop=stop)
     return output["choices"][0]["text"].strip()
+
+# Hardcoded model options for easier Streamlit UI integration in the future
+model_options = [
+    ("llama-2-7b.Q4_0.gguf", "Llama 2 7B"),
+    ("openhermes-2.5-mistral-7b.Q4_K_M.gguf", "OpenHermes 2.5 Mistral 7B"),
+    ("Nous-Hermes-2-Mistral-7B-DPO.Q4_0.gguf", "Nous Hermes 2 Mistral 7B DPO"),
+    ("openai", "OpenAI (gpt-3.5-turbo)")
+]
+model_display_names = {
+    "llama-2-7b.Q4_0.gguf": "Llama 2 7B",
+    "openhermes-2.5-mistral-7b.Q4_K_M.gguf": "OpenHermes 2.5 Mistral 7B",
+    "Nous-Hermes-2-Mistral-7B-DPO.Q4_0.gguf": "Nous Hermes 2 Mistral 7B DPO",
+    "openai": "OpenAI (gpt-3.5-turbo)"
+}
 
 # Step 1: Get files
 files = get_files()
@@ -189,13 +201,6 @@ for i, chunk in enumerate(relevant_chunks, 1):
 
 
 # Step6: Use the LLM to answer the question
-
-# Present model options to the user
-model_options = [
-    ("llama", "Llama (local, default)"),
-    ("openai", "OpenAI (gpt-3.5-turbo)")
-]
-
 console.print("\n[bold blue]Select which LLM to use to answer your question:[/bold blue]")
 for idx, (_, desc) in enumerate(model_options, 1):
     default_str = " [default]" if idx == 1 else ""
@@ -204,7 +209,7 @@ for idx, (_, desc) in enumerate(model_options, 1):
 while True:
     llm_choice_input = console.input("[bold blue]Enter the number of the model to use [1]: [/bold blue]").strip()
     if llm_choice_input == "":
-        llm_choice = model_options[0][0]  # Default to llama
+        llm_choice = model_options[0][0]  # Default to first model
         break
     if llm_choice_input.isdigit():
         idx = int(llm_choice_input)
@@ -213,14 +218,8 @@ while True:
             break
     console.print(f"[red]Invalid input. Please enter a number between 1 and {len(model_options)}.[/red]")
 
-# Map model keys to display names for spinner message
-model_display_names = {
-    "llama": "Llama",
-    "openai": "OpenAI",
-}
-
+model_name = model_display_names.get(llm_choice, llm_choice)
 if llm_choice == "openai":
-    model_name = model_display_names.get(llm_choice, llm_choice.capitalize())
     with console.status(f"[bold green]Thinking... (running {model_name} model)[/bold green]", spinner="dots"):
         try:
             llm_answer = ask_openai(relevant_chunks, user_query)
@@ -228,9 +227,10 @@ if llm_choice == "openai":
             console.print(f"[red]OpenAI error: {e}[/red]")
             llm_answer = "Error: Could not get answer from OpenAI."
 else:
-    model_name = model_display_names.get(llm_choice, llm_choice.capitalize())
+    llama_model_path = os.path.join(os.path.dirname(__file__), "models", llm_choice)
+    llm = Llama(model_path=llama_model_path, n_ctx=2048)
     with console.status(f"[bold green]Thinking... (running {model_name} model)[/bold green]", spinner="dots"):
-        llm_answer = ask_llama(relevant_chunks, user_query)
+        llm_answer = ask_llama(relevant_chunks, user_query, llm)
 
 
 # Step7: Return the answer
