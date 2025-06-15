@@ -39,7 +39,7 @@ LLM_TEMPERATURE = 0.2
 LLM_TOP_P = 1.0  # Only used by OpenAI, not llama.cpp
 LLM_STOP = ["\n"]  # Stop sequence for Llama and OpenAI
 LLM_SYSTEM_PROMPT = "You are a helpful assistant. Answer only using the provided context. If the answer is not present, say you don't know."
-LLM_MODEL = "gpt-3.5-turbo"  # OpenAI model name
+LLM_MODEL = "gpt-4-turbo-preview"  # OpenAI model name
 
 def get_files():
     """Return list of .txt and .md files in sample_docs directory."""
@@ -111,13 +111,13 @@ model_options = [
     ("llama-2-7b.Q4_0.gguf", "Llama 2 7B"),
     ("openhermes-2.5-mistral-7b.Q4_K_M.gguf", "OpenHermes 2.5 Mistral 7B"),
     ("Nous-Hermes-2-Mistral-7B-DPO.Q4_0.gguf", "Nous Hermes 2 Mistral 7B DPO"),
-    ("openai", "OpenAI (gpt-3.5-turbo)")
+    ("openai", "OpenAI (gpt-4-turbo-preview)")
 ]
 model_display_names = {
     "llama-2-7b.Q4_0.gguf": "Llama 2 7B",
     "openhermes-2.5-mistral-7b.Q4_K_M.gguf": "OpenHermes 2.5 Mistral 7B",
     "Nous-Hermes-2-Mistral-7B-DPO.Q4_0.gguf": "Nous Hermes 2 Mistral 7B DPO",
-    "openai": "OpenAI (gpt-3.5-turbo)"
+    "openai": "OpenAI (gpt-4-turbo-preview)"
 }
 
 # Step 1: Get files
